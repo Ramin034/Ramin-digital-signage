@@ -1,14 +1,70 @@
-#clock {
-  position: absolute;
-  top: 10px;
-  left: 15px;
-  font-size: 24px;
-  font-weight: bold;
+/* Basic reset */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #1a1a1a; /* Dark background for signage */
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* No scrollbars on a kiosk */
+    display: flex;
+    flex-direction: column;
 }
 
+#app {
+    flex-grow: 1; /* Fills the remaining vertical space */
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
+}
+
+/* Clock stays at the top */
+#top-bar {
+    display: flex;
+    flex-direction: column; /* Stack weather over clock */
+    align-items: flex-end;  /* Push everything to the right */
+    padding: 20px;
+    background-color: #333;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+#weather-widget {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #00d4ff;
+}
+
+#clock {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+/* Ensure the middle content doesn't overlap the top bar */
 #content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+    margin-top: 100px; 
+}
+
+
+.main-image {
+    max-width: 90vw;
+    max-height: 70vh;
+    border: 5px solid white;
+}
+
+.temp {
+    font-size: 80px;
+    margin: 10px;
+}
+
+ul {
+    text-align: left;
+    font-size: 24px;
+    line-height: 1.6;
+}
+
+li {
+    margin-bottom: 20px;
 }

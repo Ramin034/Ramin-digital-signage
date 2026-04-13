@@ -3,7 +3,8 @@
     "cycle": 10
   },
   {
-    "type": "Clock"
+    "type": "RSS",
+    "URL" : "https://cacm.acm.org/feeds-2/"
   },
   {
     "type": "Weather",
