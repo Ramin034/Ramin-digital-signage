@@ -2,25 +2,21 @@ let config = [];
 let currentIndex = 1; 
 let cycleTime = 10;
 
-// 1. The Setup Function (Merged with error handling)
+// 1. Initial Setup
 async function loadConfig() {
     try {
         const res = await fetch('config.json');
-        if (!res.ok) throw new Error("Could not find config.json");
-        
         config = await res.json();
         cycleTime = config[0].cycle;
         
-        // Start all systems
         startClock();
         updatePersistentWeather(); 
         startDisplay(); 
 
-        // Update weather every 15 minutes
+        // Update weather widget every 15 minutes
         setInterval(updatePersistentWeather, 15 * 60 * 1000);
     } catch (err) {
-        document.getElementById('content').innerHTML = "<h1>Config Error: " + err.message + "</h1>";
-        console.error(err);
+        document.getElementById('content').innerHTML = "<h1>Config Error</h1>";
     }
 }
 
@@ -28,15 +24,13 @@ async function loadConfig() {
 function startClock() {
     const clockElement = document.getElementById('clock');
     setInterval(function() {
-        const now = new Date();
-        clockElement.innerText = now.toLocaleTimeString();
+        clockElement.innerText = new Date().toLocaleTimeString();
     }, 1000);
 }
 
-// 3. The Timer Logic
+// 3. The Slide Timer
 function startDisplay() {
     showItem(); 
-
     setInterval(function() {
         currentIndex++;
         if (currentIndex >= config.length) {
@@ -46,10 +40,11 @@ function startDisplay() {
     }, cycleTime * 1000);
 }
 
-// 4. Persistent Weather (Top Right)
+// 4. Top-Right Weather Widget
 async function updatePersistentWeather() {
     const weatherElement = document.getElementById('weather-widget');
     
+    // Find the weather object in our config array
     let weatherItem = null;
     for (let i = 0; i < config.length; i++) {
         if (config[i].type === 'Weather') {
@@ -60,6 +55,7 @@ async function updatePersistentWeather() {
 
     if (weatherItem) {
         try {
+            // Weather APIs usually don't need a proxy
             const res = await fetch(weatherItem.URL);
             const data = await res.json();
             const temp = Math.round(data.current.temperature_2m);
@@ -70,12 +66,12 @@ async function updatePersistentWeather() {
     }
 }
 
-// 5. Main Content Logic
+// 5. Main Display Logic
 async function showItem() {
     const item = config[currentIndex];
     const content = document.getElementById('content');
 
-    // SKIP Weather slides because it is now in the top-bar
+    // Skip weather if it comes up in the main loop
     if (item.type === 'Weather') {
         currentIndex++;
         if (currentIndex >= config.length) currentIndex = 1;
@@ -90,25 +86,43 @@ async function showItem() {
             content.innerHTML = '<img src="' + item.URL + '" class="main-image">';
         } 
         else if (item.type === 'RSS') {
-            const res = await fetch(item.URL);
+            const proxy = "https://corsproxy.io/?";
+            const finalURL = proxy + encodeURIComponent(item.URL);
+    
+            const res = await fetch(finalURL);
+    
+            // Log what we actually got back so we can debug
+            console.log("Status:", res.status);
             const text = await res.text();
+            console.log("Response preview:", text.substring(0, 300));
+    
+            // Standard XML parsing
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(text, "text/xml");
-            const newsItems = xmlDoc.getElementsByTagName("item");
+    
+            // Check for RSS 'item' or Atom 'entry' tags
+            let newsItems = xmlDoc.getElementsByTagName("item");
+            if (newsItems.length === 0) {
+                newsItems = xmlDoc.getElementsByTagName("entry");
+            }
+    
+            console.log("Number of items found:", newsItems.length);
 
             let newsHTML = "<h1>ACM News</h1><ul>";
             for (let i = 0; i < 4; i++) {
-                const title = newsItems[i].getElementsByTagName("title")[0].textContent;
-                newsHTML += "<li>" + title + "</li>";
+                if (newsItems[i]) {
+                    const title = newsItems[i].getElementsByTagName("title")[0].textContent;
+                    newsHTML += "<li>" + title + "</li>";
+                }
             }
             newsHTML += "</ul>";
             content.innerHTML = newsHTML;
         }
     } catch (error) {
-        content.innerHTML = "<h1>Slide Failed</h1>";
-        console.error(error);
+        console.error("Fetch failed:", error);
+        content.innerHTML = "<h1>Slide Failed</h1><p>Check Proxy/Network</p>";
     }
 }
 
-// Actually start the app
+// Launch!
 loadConfig();
