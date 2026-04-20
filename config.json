@@ -4,7 +4,7 @@
   },
   {
     "type": "RSS",
-    "URL" : "https://cacm.acm.org/section/news/feed/"
+    "URL": "https://cacm.acm.org/feeds-2/"
   },
   {
     "type": "Weather",

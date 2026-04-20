@@ -68,10 +68,11 @@ async function updatePersistentWeather() {
 
 // 5. Main Display Logic
 async function showItem() {
+    console.log("showItem called, index:", currentIndex, "item:", config[currentIndex]);
+
     const item = config[currentIndex];
     const content = document.getElementById('content');
 
-    // Skip weather if it comes up in the main loop
     if (item.type === 'Weather') {
         currentIndex++;
         if (currentIndex >= config.length) currentIndex = 1;
@@ -87,40 +88,39 @@ async function showItem() {
         } 
         else if (item.type === 'RSS') {
             const proxy = "https://corsproxy.io/?";
-            const finalURL = proxy + encodeURIComponent(item.URL);
-    
-            const res = await fetch(finalURL);
-    
-            // Log what we actually got back so we can debug
-            console.log("Status:", res.status);
+            const res = await fetch(proxy + encodeURIComponent(item.URL));
             const text = await res.text();
-            console.log("Response preview:", text.substring(0, 300));
-    
-            // Standard XML parsing
+            
+            // --- DEBUG: Uncomment the line below if it still fails to see the data in F12 ---
+            // console.log("Feed Data:", text);
+
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(text, "text/xml");
-    
-            // Check for RSS 'item' or Atom 'entry' tags
-            let newsItems = xmlDoc.getElementsByTagName("item");
+            
+            console.log("Raw XML:", text.substring(0, 500));
+            
+            // Try every possible tag name for news stories
+            let newsItems = xmlDoc.querySelectorAll("item, entry, article");
+
             if (newsItems.length === 0) {
-                newsItems = xmlDoc.getElementsByTagName("entry");
+                content.innerHTML = "<h1>ACM News</h1><p>No stories found in feed.</p>";
+                return;
             }
-    
-            console.log("Number of items found:", newsItems.length);
 
             let newsHTML = "<h1>ACM News</h1><ul>";
-            for (let i = 0; i < 4; i++) {
-                if (newsItems[i]) {
-                    const title = newsItems[i].getElementsByTagName("title")[0].textContent;
-                    newsHTML += "<li>" + title + "</li>";
+            for (let i = 0; i < Math.min(newsItems.length, 4); i++) {
+                // Find the title tag regardless of namespace
+                const titleNode = newsItems[i].querySelector("title");
+                if (titleNode) {
+                    newsHTML += "<li>" + titleNode.textContent + "</li>";
                 }
             }
             newsHTML += "</ul>";
             content.innerHTML = newsHTML;
         }
     } catch (error) {
-        console.error("Fetch failed:", error);
-        content.innerHTML = "<h1>Slide Failed</h1><p>Check Proxy/Network</p>";
+        console.error("RSS Error:", error);
+        content.innerHTML = "<h1>Slide Failed</h1>";
     }
 }
 
