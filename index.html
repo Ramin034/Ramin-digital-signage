@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>Digital Signage</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel = "stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="top-bar">
-        <div id="weather-widget">Loading Weather...</div>
-        <div id="clock">Loading Time...</div>
-    </div>
-
     <div id="app">
-        <div id="content">
-            <h1>Initial Loading...</h1>
-        </div>
+            <aside id="infoPanel" class="panel">
+                <section class="infoCard">
+                    <h2>Local Time</h2>
+                    <div id="clock"></div>
+                </section>
+                <section id="weather" class="infoCard"></section>
+                <section id="staticContent" class="infoCard"></section>
+            </aside>
+
+            <main id="feedPanel" class="panel">
+                <div id="feedContent"></div>
+            </main>
     </div>
 
     <script src="app.js"></script>
-
 </body>
 </html>

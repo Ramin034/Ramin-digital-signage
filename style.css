@@ -1,83 +1,87 @@
-/* Basic reset */
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: #1a1a1a; /* Dark background for signage */
-    color: white;
-    font-family: Arial, sans-serif;
-    overflow: hidden; /* No scrollbars on a kiosk */
-    display: flex;
-    flex-direction: column;
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 #app {
-    flex-grow: 1; /* Fills the remaining vertical space */
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: center;     /* Centers vertically */
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
-/* Clock stays at the top */
-#top-bar {
-    display: flex;
-    flex-direction: column; /* Stack weather over clock */
-    align-items: flex-end;  /* Push everything to the right */
-    padding: 20px;
-    background-color: #333;
-    position: absolute;
-    top: 0;
-    right: 0;
+.panel {
+  background: rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
-#weather-widget {
-    font-size: 24px;
-    margin-bottom: 5px;
-    color: #00d4ff;
+#infoPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.infoCard {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.infoCard h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
 }
 
 #clock {
-    font-size: 30px;
-    font-weight: bold;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
-/* Ensure the middle content doesn't overlap the top bar */
-#content {
-    margin-top: 100px; 
+#feedPanel {
+  overflow: hidden;
 }
 
-
-.main-image {
-    max-width: 90vw;
-    max-height: 70vh;
-    border: 5px solid white;
+#feedContent {
+  height: 100%;
+  overflow-y: auto;
 }
 
-.temp {
-    font-size: 80px;
-    margin: 10px;
+#feedContent ul {
+  padding-left: 24px;
 }
 
-ul {
-    text-align: left;
-    font-size: 24px;
-    line-height: 1.6;
+#feedContent a {
+  color: #7dd3fc;
+  text-decoration: none;
 }
 
-li {
-    margin-bottom: 20px;
-}
-#content ul {
-    list-style-type: none; /* Removes the dots */
-    padding: 0;
+#feedContent a:hover {
+  text-decoration: underline;
 }
 
-#content li {
-    background: rgba(255, 255, 255, 0.1); /* Subtle dark gray boxes */
-    margin: 15px 0;
-    padding: 20px;
-    border-radius: 8px;
-    border-left: 5px solid #00d4ff; /* Techy blue accent */
-    font-size: 22px;
+.staticImage {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
 }

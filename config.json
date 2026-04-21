@@ -3,8 +3,7 @@
     "cycle": 10
   },
   {
-    "type": "RSS",
-    "URL": "https://cacm.acm.org/feeds-2/"
+    "type": "Clock"
   },
   {
     "type": "Weather",
@@ -12,6 +11,29 @@
   },
   {
     "type": "Image",
-    "URL": "https://p0.pikist.com/photos/337/871/sunny-weather-weather-sun-sky-blue-sky-blue-clouds-nature-summer.jpg"
+    "URL": "https://static0.gamerantimages.com/wordpress/wp-content/uploads/2023/01/pokemon-squirtle-squad-return-anime.jpg"
+  },
+  {
+    "type": "RSS",
+    "URL": "https://news.ycombinator.com/rss",
+    "maxItems": 6
+  },
+  { "type": "RSS", 
+    "URL": "https://techcrunch.com/feed/", 
+    "maxItems": 6 
+  },
+  { "type": "RSS", 
+    "URL": "https://feeds.arstechnica.com/arstechnica/index", 
+    "maxItems": 6 
+  },
+  {
+    "type": "API",
+    "title": "Jokes",
+    "URL": "https://geek-jokes.sameerkumar.website/api?format=json",
+    "valuePath" : "joke",
+    "prefix": " ",
+    "suffix": "" ,
+    "cycle": 7,
+    "_comment": "placeholder api just for testing, don't really fuck with the jokes"
   }
 ]
