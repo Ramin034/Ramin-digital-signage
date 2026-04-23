@@ -27,6 +27,11 @@
     "maxItems": 6 
   },
   {
+    "type": "RSS",
+    "URL": "https://feeds.bbci.co.uk/news/rss.xml",
+    "maxItems": 6
+  },
+  {
     "type": "API",
     "title": "Jokes",
     "URL": "https://geek-jokes.sameerkumar.website/api?format=json",

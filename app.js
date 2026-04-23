@@ -55,7 +55,9 @@ function startClock() {
 
   setInterval(() => {
     const now = new Date();
-    clock.innerText = now.toLocaleTimeString();
+    const time = now.toLocaleTimeString();
+    const date = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    clock.innerHTML = time + '<br><span id="date">' + date + '</span>';
   }, 1000);
 }
 
