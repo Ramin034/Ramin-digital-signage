@@ -84,12 +84,33 @@ async function loadWeather(url, title = 'Weather') {
     const wind = data.current.wind_speed_10m;
     const symbol = getWeatherSymbol(data.current.weather_code);
 
+    // Build the 3-day forecast
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let forecastHTML = '';
+    for (let i = 1; i <= 3; i++) {
+        const parts = data.daily.time[i].split('-');
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        const day = days[date.getDay()];
+        const high = Math.round(data.daily.temperature_2m_max[i]);
+        const low = Math.round(data.daily.temperature_2m_min[i]);
+        const icon = getWeatherSymbol(data.daily.weather_code[i]);
+        forecastHTML += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-top: 1px solid rgba(148,163,184,0.2);">
+                <span style="width: 36px; color: #94a3b8;">${day}</span>
+                <span>${icon}</span>
+                <span style="color: #f87171;">${high}°</span>
+                <span style="color: #7dd3fc;">${low}°</span>
+            </div>
+        `;
+    }
+
     return `
         <div>
             <h2>${escapeHtml(title)}</h2>
-            <p style="font-size: 1.4rem; margin: 4px 0;">${symbol}</p>
+            <p style="font-size: 1.4rem; margin: 4px 0 2px 0;">${symbol}</p>
             <p style="font-size: 2rem; margin: 4px 0 2px 0;">${temp}°F</p>
             <p style="margin: 0;">Wind: ${wind} mph</p>
+            <div style="margin-top: 10px;">${forecastHTML}</div>
         </div>
     `;
 }
