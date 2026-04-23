@@ -94,6 +94,8 @@ body {
   font-size: 1rem;
   font-weight: 400;
   color: #94a3b8;
+  display: block;
+  margin-top: -6px;
 }
 
 /* ── PORTRAIT ───────────────────────────────────────────────── */

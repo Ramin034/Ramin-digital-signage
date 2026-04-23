@@ -7,7 +7,7 @@
   },
   {
     "type": "Weather",
-    "URL": "https://api.open-meteo.com/v1/forecast?latitude=39.7392&longitude=-104.9847&current=temperature_2m,wind_speed_10m&timezone=America%2FDenver&wind_speed_unit=mph&temperature_unit=fahrenheit"
+    "URL": "https://api.open-meteo.com/v1/forecast?latitude=39.7392&longitude=-104.9847&current=temperature_2m,wind_speed_10m,weather_code&timezone=America%2FDenver&wind_speed_unit=mph&temperature_unit=fahrenheit"
   },
   {
     "type": "Image",
