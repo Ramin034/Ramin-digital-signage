@@ -29,6 +29,8 @@ async function loadConfig() {
     startCryptoRefresh();
     startChicagoArtRefresh();
     startRssDisplay();
+    startAutoScroll('feedContent', 0.4, 2000);
+    startAutoScroll('apiContent', 0.3, 3000);
 
   } catch (err) {
     console.error("Failed to load config:", err);
@@ -380,7 +382,6 @@ async function renderStaticItems() {
   const imageItems   = staticItems.filter((item) => item.type === 'Image');
   const apiItems     = staticItems.filter((item) => item.type === 'API');
 
-  // Weather
   if (weatherItems.length) {
     try {
       const markup = await Promise.all(
@@ -392,7 +393,6 @@ async function renderStaticItems() {
     }
   }
 
-  // Image
   if (imageItems.length) {
     imageBox.style.display = 'block';
     imageBox.innerHTML = imageItems.map((item) =>
@@ -400,7 +400,6 @@ async function renderStaticItems() {
     ).join('');
   }
 
-  // API
   if (apiItems.length) {
     try {
       const cards = await Promise.all(apiItems.map((item) => loadApiCard(item)));
@@ -442,6 +441,30 @@ async function showRssItem() {
       </div>
     `;
   }
+}
+
+function startAutoScroll(elementId, speed, pauseMs) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  let scrolling = true;
+
+  function scroll() {
+    if (!scrolling) return;
+    el.scrollTop += speed;
+
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight) {
+      scrolling = false;
+      setTimeout(() => {
+        el.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(() => { scrolling = true; scroll(); }, 1000);
+      }, pauseMs);
+      return;
+    }
+    requestAnimationFrame(scroll);
+  }
+
+  scroll();
 }
 
 loadConfig();
