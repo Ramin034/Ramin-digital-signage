@@ -32,8 +32,8 @@ async function loadConfig() {
     startAutoScroll('feedContent', 0.4, 2000);
     startAutoScroll('apiContent', 0.3, 3000);
 
-  } catch (err) {
-    console.error("Failed to load config:", err);
+  } catch (_err) {
+    console.error('Failed to load config:', _err);
   }
 }
 
@@ -61,7 +61,7 @@ async function renderCrypto() {
     try {
       box.style.display = 'block';
       box.innerHTML = await loadCryptoChart(item);
-    } catch (err) {
+    } catch {
       box.innerHTML = '<p>Crypto data unavailable.</p>';
       box.style.display = 'block';
     }
@@ -81,7 +81,7 @@ async function renderChicagoArt() {
     const cards = await Promise.all(chicagoArtItems.map(() => loadChicagoArt()));
     chicagoArtBox.style.display = 'block';
     chicagoArtBox.innerHTML = cards.join('');
-  } catch (err) {
+  } catch {
     chicagoArtBox.style.display = 'none';
   }
 }
@@ -238,7 +238,7 @@ function escapeHtml(str) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replaceAll('\'', '&#39;');
 }
 
 async function loadRss(url, maxItems = 5) {
@@ -367,8 +367,8 @@ async function loadChicagoArt() {
     if (!winner) return '';
 
     return `<img src="${winner.url}" alt="${escapeHtml(winner.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;">`;
-  } catch (err) {
-    console.error('Chicago Art error:', err);
+  } catch (_err) {
+    console.error('Chicago Art error:', _err);
     return '';
   }
 }
@@ -388,7 +388,7 @@ async function renderStaticItems() {
         weatherItems.map((item) => loadWeather(item.URL, item.title || 'Denver Weather'))
       );
       weatherBox.innerHTML = markup.join('');
-    } catch (err) {
+    } catch {
       weatherBox.innerHTML = '<p>Weather unavailable.</p>';
     }
   }
@@ -407,7 +407,7 @@ async function renderStaticItems() {
       apiBox.innerHTML = cards.map(c =>
         c.replace('<div class="infoCard">', '').replace(/<\/div>\s*$/, '')
       ).join('');
-    } catch (err) {
+    } catch {
       apiBox.innerHTML = '<p>API data unavailable.</p>';
       apiBox.style.display = 'block';
     }
@@ -431,8 +431,8 @@ async function showRssItem() {
   try {
     feedContent.innerHTML = await loadRss(item.URL, item.maxItems || 5);
     articleTimer = setTimeout(cycleArticles, cycleTime * 1000);
-  } catch (err) {
-    console.error('Failed to load RSS feed:', err);
+  } catch (_err) {
+    console.error('Failed to load RSS feed:', _err);
     feedContent.innerHTML = `
       <div>
         <h1>Feed Unavailable</h1>
@@ -448,19 +448,29 @@ function startAutoScroll(elementId, speed, pauseMs) {
   if (!el) return;
 
   let scrolling = true;
+  let frameCount = 0;
 
   function scroll() {
     if (!scrolling) return;
-    el.scrollTop += speed;
 
-    if (el.scrollTop + el.clientHeight >= el.scrollHeight) {
+    frameCount++;
+    if (frameCount % 3 === 0) {
+      el.scrollTop += speed;
+    }
+
+    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
       scrolling = false;
       setTimeout(() => {
         el.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => { scrolling = true; scroll(); }, 1000);
+        setTimeout(() => {
+          scrolling = true;
+          frameCount = 0;
+          scroll();
+        }, 1000);
       }, pauseMs);
       return;
     }
+
     requestAnimationFrame(scroll);
   }
 
