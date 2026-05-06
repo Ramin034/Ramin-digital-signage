@@ -1,11 +1,67 @@
+/**
+ * @file app.js
+ * @description
+ * Main JavaScript file for the Digital Signage project.
+ *
+ * This file loads display settings from config.json and renders:
+ * - RSS news feeds
+ * - Weather information
+ * - Cryptocurrency charts
+ * - Chicago Art Institute artwork
+ * - Static images
+ * - API cards
+ * - Live clock and date
+ */
+
+/**
+ * Stores the full configuration loaded from config.json.
+ * @type {Array<Object>}
+ */
 let config = [];
+
+/**
+ * Default cycle time in seconds for RSS article rotation.
+ * @type {number}
+ */
 let cycleTime = 10;
+
+/**
+ * Stores all RSS feed configuration items.
+ * @type {Array<Object>}
+ */
 let rssItems = [];
+
+/**
+ * Stores all non-RSS configuration items such as weather, images, crypto, and API cards.
+ * @type {Array<Object>}
+ */
 let staticItems = [];
+
+/**
+ * Tracks the currently displayed RSS feed index.
+ * @type {number}
+ */
 let currentRssIndex = 0;
+
+/**
+ * Refresh time in seconds for static content.
+ * @type {number}
+ */
 let staticRefreshTime = 60;
+
+/**
+ * Stores the active article timer so it can be cleared before starting a new one.
+ * @type {?number}
+ */
 let articleTimer = null;
 
+/**
+ * Loads the project configuration from config.json and starts all display systems.
+ *
+ * @async
+ * @function loadConfig
+ * @returns {Promise<void>}
+ */
 async function loadConfig() {
   try {
     const res = await fetch('config.json');
@@ -37,12 +93,27 @@ async function loadConfig() {
   }
 }
 
+/**
+ * Starts the refresh timer for static display items.
+ *
+ * @function startStaticRefresh
+ * @returns {void}
+ */
 function startStaticRefresh() {
   setInterval(() => {
     renderStaticItems();
   }, staticRefreshTime * 1000);
 }
 
+/**
+ * Renders cryptocurrency chart cards into their matching content panels.
+ *
+ * Each crypto item is mapped to a specific HTML element based on its cryptoId.
+ *
+ * @async
+ * @function renderCrypto
+ * @returns {Promise<void>}
+ */
 async function renderCrypto() {
   const cryptoItems = staticItems.filter((item) => item.type === 'Crypto');
   if (!cryptoItems.length) return;
@@ -68,10 +139,25 @@ async function renderCrypto() {
   }
 }
 
+/**
+ * Starts the cryptocurrency refresh timer.
+ *
+ * Crypto charts refresh once every hour.
+ *
+ * @function startCryptoRefresh
+ * @returns {void}
+ */
 function startCryptoRefresh() {
   setInterval(renderCrypto, 60 * 60 * 1000);
 }
 
+/**
+ * Renders artwork from the Art Institute of Chicago API.
+ *
+ * @async
+ * @function renderChicagoArt
+ * @returns {Promise<void>}
+ */
 async function renderChicagoArt() {
   const chicagoArtBox   = document.getElementById('chicagoArtContent');
   const chicagoArtItems = staticItems.filter((item) => item.type === 'ChicagoArt');
@@ -86,15 +172,35 @@ async function renderChicagoArt() {
   }
 }
 
+/**
+ * Starts the Chicago Art refresh timer.
+ *
+ * Artwork refreshes once every minute.
+ *
+ * @function startChicagoArtRefresh
+ * @returns {void}
+ */
 function startChicagoArtRefresh() {
   setInterval(renderChicagoArt, 1 * 60 * 1000);
 }
 
+/**
+ * Starts the RSS feed display and rotates between configured RSS feeds.
+ *
+ * @function startRssDisplay
+ * @returns {void}
+ */
 function startRssDisplay() {
   showRssItem();
 
   if (rssItems.length <= 1) return;
 
+  /**
+   * Schedules the next RSS feed transition after all articles from the current feed rotate.
+   *
+   * @function scheduleNext
+   * @returns {void}
+   */
   function scheduleNext() {
     const currentItem = rssItems[currentRssIndex];
     const maxItems = currentItem.maxItems || 5;
@@ -112,6 +218,14 @@ function startRssDisplay() {
   scheduleNext();
 }
 
+/**
+ * Starts the live clock and date display.
+ *
+ * Updates the clock once every second.
+ *
+ * @function startClock
+ * @returns {void}
+ */
 function startClock() {
   const clock = document.getElementById('clock');
   if (!clock) return;
@@ -124,6 +238,13 @@ function startClock() {
   }, 1000);
 }
 
+/**
+ * Converts weather API codes into readable weather symbols and labels.
+ *
+ * @function getWeatherSymbol
+ * @param {number} code - Weather condition code from the weather API.
+ * @returns {string} Weather icon and description.
+ */
 function getWeatherSymbol(code) {
   if (code === 0)                return '☀️ Clear';
   if (code === 1)                return '🌤️ Mostly Clear';
@@ -139,6 +260,17 @@ function getWeatherSymbol(code) {
   return '🌡️ Unknown';
 }
 
+/**
+ * Loads weather data from an API URL and returns weather card HTML.
+ *
+ * @async
+ * @function loadWeather
+ * @param {string} url - Weather API URL.
+ * @param {string} [title='Weather'] - Display title for the weather card.
+ * @returns {Promise<string>} Weather card HTML string.
+ */
+// Used Ai to help
+// Prompt: How can we show the weather for the next 3 days
 async function loadWeather(url, title = 'Weather') {
   const res = await fetch(url);
   const data = await res.json();
@@ -177,6 +309,20 @@ async function loadWeather(url, title = 'Weather') {
   `;
 }
 
+/**
+ * Loads cryptocurrency price data and creates a Chart.js chart card.
+ *
+ * @async
+ * @function loadCryptoChart
+ * @param {Object} item - Cryptocurrency configuration object.
+ * @param {string} item.cryptoId - CoinGecko cryptocurrency ID.
+ * @param {string} [item.vs_currency='usd'] - Currency used for comparison.
+ * @param {number} [item.days=7] - Number of days of chart data to load.
+ * @param {string} [item.chartType='line'] - Chart.js chart type.
+ * @param {string} [item.color='#6bff6b'] - Chart color.
+ * @param {string} item.title - Display title for the chart.
+ * @returns {Promise<string>} Crypto chart HTML string.
+ */
 async function loadCryptoChart(item) {
   const url = `https://api.coingecko.com/api/v3/coins/${item.cryptoId}/market_chart?vs_currency=${item.vs_currency || 'usd'}&days=${item.days || 7}`;
 
@@ -232,6 +378,13 @@ async function loadCryptoChart(item) {
   return html;
 }
 
+/**
+ * Escapes unsafe HTML characters to help prevent HTML injection.
+ *
+ * @function escapeHtml
+ * @param {string} str - Raw string to sanitize.
+ * @returns {string} HTML-safe string.
+ */
 function escapeHtml(str) {
   return str
     .replaceAll('&', '&amp;')
@@ -241,6 +394,17 @@ function escapeHtml(str) {
     .replaceAll('\'', '&#39;');
 }
 
+/**
+ * Loads RSS feed data through RSS2JSON and returns article card HTML.
+ *
+ * @async
+ * @function loadRss
+ * @param {string} url - RSS feed URL.
+ * @param {number} [maxItems=5] - Maximum number of RSS items to display.
+ * @returns {Promise<string>} RSS feed HTML string.
+ */
+// Used ai for help with this
+// Prompt: CORSPROXY isn't working can you help with that
 async function loadRss(url, maxItems = 5) {
   const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url);
   const res = await fetch(proxyUrl);
@@ -280,12 +444,25 @@ async function loadRss(url, maxItems = 5) {
   return html;
 }
 
+/**
+ * Removes HTML tags from a string and returns plain text.
+ *
+ * @function stripHtml
+ * @param {string} html - HTML content string.
+ * @returns {string} Plain text content.
+ */
 function stripHtml(html) {
   const d = document.createElement('div');
   d.innerHTML = html;
   return d.textContent || d.innerText || '';
 }
 
+/**
+ * Cycles through visible RSS article cards.
+ *
+ * @function cycleArticles
+ * @returns {void}
+ */
 function cycleArticles() {
   const cards = document.querySelectorAll('.article-card');
   if (!cards.length) return;
@@ -300,6 +477,17 @@ function cycleArticles() {
   articleTimer = setTimeout(cycleArticles, cycleTime * 1000);
 }
 
+/**
+ * Retrieves a nested object value using dot notation.
+ *
+ * Example:
+ * getValuePath(data, 'current.temperature')
+ *
+ * @function getValuePath
+ * @param {Object} obj - Source object.
+ * @param {string} path - Dot notation path.
+ * @returns {*} Retrieved value, or undefined if the path does not exist.
+ */
 function getValuePath(obj, path) {
   return path.split('.').reduce(
     (current, key) => current && typeof current === 'object' ? current[key] : undefined,
@@ -307,6 +495,19 @@ function getValuePath(obj, path) {
   );
 }
 
+/**
+ * Loads data from a custom API endpoint and returns an API card.
+ *
+ * @async
+ * @function loadApiCard
+ * @param {Object} item - API configuration object.
+ * @param {string} item.URL - API endpoint URL.
+ * @param {string} [item.title='API Data'] - Card title.
+ * @param {string} [item.valuePath] - Dot notation path to the value inside the API response.
+ * @param {string} [item.prefix=''] - Text displayed before the API value.
+ * @param {string} [item.suffix=''] - Text displayed after the API value.
+ * @returns {Promise<string>} API card HTML string.
+ */
 async function loadApiCard(item) {
   const res = await fetch(item.URL);
   const data = await res.json();
@@ -322,6 +523,16 @@ async function loadApiCard(item) {
   `;
 }
 
+/**
+ * Tests multiple image URLs and resolves with the first valid image.
+ *
+ * @function probeImages
+ * @param {Array<Object>} candidates - Candidate image objects.
+ * @param {string} candidates[].url - Image URL.
+ * @param {string} candidates[].title - Image title.
+ * @param {number} [timeoutMs=6000] - Timeout in milliseconds.
+ * @returns {Promise<?Object>} Valid image object, or null if no image loads.
+ */
 function probeImages(candidates, timeoutMs = 6000) {
   return new Promise((resolve) => {
     if (!candidates.length) { resolve(null); return; }
@@ -346,6 +557,13 @@ function probeImages(candidates, timeoutMs = 6000) {
   });
 }
 
+/**
+ * Loads random artwork from the Art Institute of Chicago API.
+ *
+ * @async
+ * @function loadChicagoArt
+ * @returns {Promise<string>} Artwork image HTML string, or an empty string if unavailable.
+ */
 async function loadChicagoArt() {
   try {
     const page = Math.floor(Math.random() * 1200) + 1;
@@ -373,6 +591,13 @@ async function loadChicagoArt() {
   }
 }
 
+/**
+ * Renders static content sections including weather, images, and API cards.
+ *
+ * @async
+ * @function renderStaticItems
+ * @returns {Promise<void>}
+ */
 async function renderStaticItems() {
   const weatherBox = document.getElementById('weather');
   const imageBox   = document.getElementById('imageContent');
@@ -414,6 +639,13 @@ async function renderStaticItems() {
   }
 }
 
+/**
+ * Displays the currently selected RSS feed and starts article cycling.
+ *
+ * @async
+ * @function showRssItem
+ * @returns {Promise<void>}
+ */
 async function showRssItem() {
   const feedContent = document.getElementById('feedContent');
 
@@ -443,6 +675,15 @@ async function showRssItem() {
   }
 }
 
+/**
+ * Auto-scrolls an element slowly, pauses at the bottom, then resets to top.
+ *
+ * @function startAutoScroll
+ * @param {string} elementId - ID of the element to scroll.
+ * @param {number} speed - Pixels to scroll per active frame.
+ * @param {number} pauseMs - Milliseconds to pause at the bottom before resetting.
+ * @returns {void}
+ */
 function startAutoScroll(elementId, speed, pauseMs) {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -477,4 +718,7 @@ function startAutoScroll(elementId, speed, pauseMs) {
   scroll();
 }
 
+/**
+ * Initializes the Digital Signage application.
+ */
 loadConfig();
