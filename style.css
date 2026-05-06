@@ -10,7 +10,7 @@ body {
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* ── LANDSCAPE LAYOUT ───────────────────────────────────────── */
+/* ── LANDSCAPE ──────────────────────────────────────────────── */
 #app {
   height: 100vh;
   display: grid;
@@ -20,7 +20,6 @@ body {
   box-sizing: border-box;
 }
 
-/* ── LEFT PANEL ─────────────────────────────────────────────── */
 #infoPanel {
   display: flex;
   flex-direction: column;
@@ -75,7 +74,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ── RIGHT PANEL ────────────────────────────────────────────── */
 #rightPanel {
   display: flex;
   flex-direction: column;
@@ -102,21 +100,24 @@ body {
   min-height: 0;
 }
 
-/* ── BOTTOM GRID ────────────────────────────────────────────── */
+/* ── BOTTOM GRID (landscape) ────────────────────────────────── */
 #bottomGrid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 180px 180px;
   gap: 16px;
   flex-shrink: 0;
-  height: 400px;
 }
 
-#bitcoinContent  { grid-column: 1; grid-row: 1; }
-#ethereumContent { grid-column: 2; grid-row: 1; }
-#dogecoinContent { grid-column: 3; grid-row: 1; }
-#harvardContent  { grid-column: 1 / 3; grid-row: 2; }
-#imageContent    { grid-column: 3; grid-row: 2; }
+#bitcoinContent    { grid-column: 1; grid-row: 1; }
+#ethereumContent   { grid-column: 2; grid-row: 1; }
+#dogecoinContent   { grid-column: 3; grid-row: 1; }
+#chicagoArtContent { grid-column: 1 / 3; grid-row: 2; }
+#imageContent {
+  grid-column: 3;
+  grid-row: 2;
+  overflow: hidden;
+}
 
 .bottomBox {
   background: rgba(148, 163, 184, 0.2);
@@ -127,7 +128,7 @@ body {
   overflow: hidden;
 }
 
-/* ── CRYPTO CHARTS ──────────────────────────────────────────── */
+/* ── CRYPTO ─────────────────────────────────────────────────── */
 .cryptoCard {
   display: flex;
   flex-direction: column;
@@ -249,7 +250,7 @@ body {
 @media (orientation: portrait) {
   #app {
     grid-template-columns: 1fr;
-    grid-template-rows: 15vh 35vh 22vh 22vh;
+    grid-template-rows: 15vh 28vh 51vh;
     gap: 6px;
     padding: 8px;
     height: 100vh;
@@ -275,21 +276,25 @@ body {
   }
 
   .infoCard h2 {
-    font-size: 0.85rem;
-    margin-bottom: 2px;
+    font-size: 1rem !important;
+    margin-bottom: 4px;
   }
 
   #clock {
-    font-size: 1.2rem;
+    font-size: 1.5rem !important;
   }
 
   #time {
-    font-size: 1.2rem;
+    font-size: 1.5rem !important;
   }
 
   #date {
-    font-size: 0.7rem;
-    margin-top: 1px;
+    font-size: 0.8rem !important;
+    margin-top: 2px;
+  }
+
+  #weather {
+    font-size: 0.85rem;
   }
 
   #rightPanel {
@@ -326,57 +331,56 @@ body {
   }
 
   .article-source {
-    margin-bottom: 4px;
-    font-size: 10px;
+    margin-bottom: 8px;
+    font-size: 13px !important;
     letter-spacing: 1px;
     flex-shrink: 0;
   }
 
   .article-title {
-    font-size: 1.1rem;
-    margin-bottom: 6px;
+    font-size: 1.5rem !important;
+    margin-bottom: 10px;
     flex-shrink: 0;
     line-height: 1.2;
   }
 
   .article-divider {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
     flex-shrink: 0;
-    width: 30px;
-    height: 2px;
+    width: 36px;
+    height: 3px;
   }
 
   .article-desc {
-    font-size: 0.85rem;
-    line-height: 1.4;
+    font-size: 1.05rem !important;
+    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     flex-shrink: 0;
   }
 
   .article-num {
-    padding-top: 4px;
-    font-size: 10px;
+    padding-top: 8px;
+    font-size: 12px;
     margin-top: auto;
   }
 
   #bottomGrid {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 6px;
-  height: 100%;
-  box-sizing: border-box;
-  grid-row: 3 / 5;
-}
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 6px;
+    height: 100%;
+    box-sizing: border-box;
+  }
 
-    #bitcoinContent  { grid-column: 1; grid-row: 1; }
-    #ethereumContent { grid-column: 2; grid-row: 1; }
-    #dogecoinContent { grid-column: 3; grid-row: 1; }
-    #chicagoArtContent { grid-column: 1 / 3; grid-row: 2; }
-    #imageContent    { grid-column: 3; grid-row: 2; }
+  #bitcoinContent    { grid-column: 1; grid-row: 1; display: block !important; }
+  #ethereumContent   { grid-column: 2; grid-row: 1; display: block !important; }
+  #dogecoinContent   { grid-column: 1; grid-row: 2; display: block !important; }
+  #chicagoArtContent { grid-column: 2; grid-row: 2; display: block !important; }
+  #imageContent      { display: none !important; }
 
   .bottomBox {
     padding: 6px;
@@ -395,8 +399,8 @@ body {
   }
 
   .cryptoCard h3 {
-    font-size: 0.78rem;
-    margin-bottom: 2px;
+    font-size: 0.9rem !important;
+    margin-bottom: 4px;
     flex-shrink: 0;
   }
 
