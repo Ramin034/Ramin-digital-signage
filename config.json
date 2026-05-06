@@ -46,8 +46,28 @@
     "title": "Bitcoin Trends",
     "cryptoId": "bitcoin",
     "vs_currency": "usd",
-    "days": 7,
-    "chartType": "line"
+    "days": 1,
+    "chartType": "line",
+    "color": "#6bff6b"
+
+  },
+  {
+    "type": "Crypto",
+    "title": "Ethereum Trends",
+    "cryptoId": "ethereum",
+    "vs_currency": "usd",
+    "days": 1,
+    "chartType": "line",
+    "color": "#e030f0"
+  },
+  {
+    "type": "Crypto",
+    "title": "Dogecoin Trends",
+    "cryptoId": "dogecoin",
+    "vs_currency": "usd",
+    "days": 1,
+    "chartType": "line",
+    "color": "#e00909"
   },
   {
     "type": "Harvard",

@@ -23,7 +23,9 @@ async function loadConfig() {
 
     startClock();
     await renderStaticItems();
+    await renderCrypto();
     startStaticRefresh();
+    startCryptoRefresh();
     startRssDisplay();
 
   } catch (err) {
@@ -35,6 +37,36 @@ function startStaticRefresh() {
   setInterval(() => {
     renderStaticItems();
   }, staticRefreshTime * 1000);
+}
+
+async function renderCrypto() {
+  const cryptoItems = staticItems.filter((item) => item.type === 'Crypto');
+  if (!cryptoItems.length) return;
+
+  // Map each cryptoId to its own box
+  const boxMap = {
+    'bitcoin':  'bitcoinContent',
+    'ethereum': 'ethereumContent',
+    'dogecoin': 'dogecoinContent',
+  };
+
+  for (const item of cryptoItems) {
+    const boxId = boxMap[item.cryptoId] || 'bitcoinContent';
+    const box = document.getElementById(boxId);
+    if (!box) continue;
+
+    try {
+      box.style.display = 'block';
+      box.innerHTML = await loadCryptoChart(item);
+    } catch (err) {
+      box.innerHTML = '<p>Crypto data unavailable.</p>';
+      box.style.display = 'block';
+    }
+  }
+}
+
+function startCryptoRefresh() {
+  setInterval(renderCrypto, 60 * 60 * 1000);
 }
 
 function startRssDisplay() {
@@ -128,7 +160,9 @@ async function loadCryptoChart(item) {
   const url = `https://api.coingecko.com/api/v3/coins/${item.cryptoId}/market_chart?vs_currency=${item.vs_currency || 'usd'}&days=${item.days || 7}`;
 
   const res = await fetch(url);
+  if (!res.ok) throw new Error(`CoinGecko error: ${res.status}`);
   const data = await res.json();
+  if (!data.prices) throw new Error('No price data in response');
 
   const prices = data.prices.map(([timestamp, price]) => ({
     time: new Date(timestamp).toLocaleDateString(),
@@ -138,9 +172,9 @@ async function loadCryptoChart(item) {
   const chartId = `cryptoChart_${item.cryptoId}`;
 
   const html = `
-    <div style="width: 100%; height: 100%;">
-      <h2 style="margin: 0 0 8px 0;">${escapeHtml(item.title)}</h2>
-      <canvas id="${chartId}"></canvas>
+    <div class="cryptoCard">
+      <h3 style="margin:0 0 6px 0; font-size:0.95rem;">${escapeHtml(item.title)}</h3>
+      <div class="chartWrapper"><canvas id="${chartId}"></canvas></div>
     </div>
   `;
 
@@ -154,8 +188,8 @@ async function loadCryptoChart(item) {
           datasets: [{
             label: item.title,
             data: prices.map(p => parseFloat(p.price)),
-            borderColor: '#6bff6b',
-            backgroundColor: 'rgba(107, 255, 107, 0.1)',
+            borderColor: item.color || '#6bff6b',
+            backgroundColor: (item.color || '#6bff6b') + '1a',
             tension: 0.4,
             fill: true
           }]
@@ -186,6 +220,9 @@ function escapeHtml(str) {
     .replaceAll("'", '&#39;');
 }
 
+
+// Had help from AI with this functions
+// Prompt: Im having trouble with getting CORSPROXY to work what can I do?
 async function loadRss(url, maxItems = 5) {
   const proxyUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url);
   const res = await fetch(proxyUrl);
@@ -269,49 +306,39 @@ async function loadApiCard(item) {
 
 async function loadHarvardArt(item) {
   try {
-    const url = `https://api.harvardartmuseums.org/object?apikey=${item.apiKey}&size=1&sort=random&hasImages=1`;
+    const url = `https://api.harvardartmuseums.org/object?apikey=${item.apiKey}&size=10&sort=random&hasImages=1`;
     const res = await fetch(url);
     const data = await res.json();
 
-    if (!data.records || data.records.length === 0) {
-      return '<p>No artworks found.</p>';
-    }
+    if (!data.records || data.records.length === 0) return '';
 
-    const record = data.records[0];
-    let imageHtml = '';
-
-    if (record.images && record.images.length > 0) {
-      const img = record.images[0];
-      if (img.iiifbaseuri) {
-        const imageUrl = `${img.iiifbaseuri}/full/400,/0/default.jpg`;
-        imageHtml = `<img src="${imageUrl}" alt="${escapeHtml(record.title)}" style="max-width: 100%; max-height: 100px; object-fit: cover; border-radius: 8px; margin: 8px 0;">`;
+    for (const record of data.records) {
+      if (record.images && record.images.length > 0) {
+        const img = record.images[0];
+        if (img && img.iiifbaseuri) {
+          const imageUrl = `${img.iiifbaseuri}/full/400,/0/default.jpg`;
+          return `<img src="${imageUrl}" alt="${escapeHtml(record.title || '')}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;">`;
+        }
       }
     }
 
-    return `
-      <h2 style="margin: 0 0 6px 0;">Harvard Art</h2>
-      <p style="font-size: 0.85rem; font-weight: 600; margin: 0 0 4px 0;">${escapeHtml(record.title || 'Untitled')}</p>
-      ${imageHtml}
-      <p style="font-size: 0.8rem; margin: 4px 0;"><strong>Artist:</strong> ${escapeHtml(record.people ? record.people.map(p => p.name).join(', ') : 'Unknown')}</p>
-      <p style="font-size: 0.8rem; margin: 0;"><strong>Date:</strong> ${escapeHtml(record.dated || 'Unknown')}</p>
-    `;
+    return '<p style="font-size:0.8rem;color:#94a3b8;">No image available</p>';
   } catch (err) {
     console.error('Harvard Art error:', err);
-    return '<p>Failed to load artwork.</p>';
+    return '<p style="font-size:0.8rem;color:#94a3b8;">Failed to load artwork</p>';
   }
 }
 
+// had AI assistance with this
 async function renderStaticItems() {
-  const weatherBox   = document.getElementById('weather');
-  const imageBox     = document.getElementById('imageContent');
-  const apiBox       = document.getElementById('apiContent');
-  const cryptoBox    = document.getElementById('cryptoContent');
-  const harvardBox   = document.getElementById('harvardContent');
+  const weatherBox  = document.getElementById('weather');
+  const imageBox    = document.getElementById('imageContent');
+  const apiBox      = document.getElementById('apiContent');
+  const harvardBox  = document.getElementById('harvardContent');
 
   const weatherItems = staticItems.filter((item) => item.type === 'Weather');
   const imageItems   = staticItems.filter((item) => item.type === 'Image');
   const apiItems     = staticItems.filter((item) => item.type === 'API');
-  const cryptoItems  = staticItems.filter((item) => item.type === 'Crypto');
   const harvardItems = staticItems.filter((item) => item.type === 'Harvard');
 
   // Weather
@@ -345,18 +372,6 @@ async function renderStaticItems() {
     } catch (err) {
       apiBox.innerHTML = '<p>API data unavailable.</p>';
       apiBox.style.display = 'block';
-    }
-  }
-
-  // Crypto
-  if (cryptoItems.length) {
-    try {
-      const cards = await Promise.all(cryptoItems.map((item) => loadCryptoChart(item)));
-      cryptoBox.style.display = 'block';
-      cryptoBox.innerHTML = cards.join('');
-    } catch (err) {
-      cryptoBox.innerHTML = '<p>Crypto data unavailable.</p>';
-      cryptoBox.style.display = 'block';
     }
   }
 
