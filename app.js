@@ -155,8 +155,8 @@ async function loadWeather(url, title = 'Weather') {
     const low = Math.round(data.daily.temperature_2m_min[i]);
     const icon = getWeatherSymbol(data.daily.weather_code[i]);
     forecastHTML += `
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-top: 1px solid rgba(148,163,184,0.2);">
-        <span style="width: 36px; color: #94a3b8;">${day}</span>
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 0; border-top: 1px solid rgba(148,163,184,0.2); font-size: 0.65rem;">
+        <span style="width: 28px; color: #94a3b8;">${day}</span>
         <span>${icon}</span>
         <span style="color: #f87171;">${high}°</span>
         <span style="color: #7dd3fc;">${low}°</span>
@@ -167,10 +167,10 @@ async function loadWeather(url, title = 'Weather') {
   return `
     <div>
       <h2>${escapeHtml(title)}</h2>
-      <p style="font-size: 1.4rem; margin: 4px 0 2px 0;">${symbol}</p>
-      <p style="font-size: 2rem; margin: 4px 0 2px 0;">${temp}°F</p>
-      <p style="margin: 0;">Wind: ${wind} mph</p>
-      <div style="margin-top: 10px;">${forecastHTML}</div>
+      <p style="font-size: 1rem; margin: 2px 0 1px 0;">${symbol}</p>
+      <p style="font-size: 1.2rem; margin: 2px 0 1px 0;">${temp}°F</p>
+      <p style="margin: 0; font-size: 0.7rem;">Wind: ${wind} mph</p>
+      <div style="margin-top: 6px;">${forecastHTML}</div>
     </div>
   `;
 }
